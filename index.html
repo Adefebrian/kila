@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Story Maker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #d6336c;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(214, 51, 108, 0.15);
+        }
+
+        .panel h2 {
+            margin-bottom: 20px;
+            color: #d6336c;
+            font-size: 1.5em;
+        }
+
+        .sentence-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .sentence-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #fff5f8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sentence-item:hover {
+            background: #ffe4ec;
+            transform: translateX(5px);
+        }
+
+        .sentence-item.selected {
+            background: #ffd4e5;
+            border-left-color: #ff69b4;
+        }
+
+        .sentence-item.used {
+            background: #f0f0f0;
+            border-left-color: #999;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c94b7d 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(214, 51, 108, 0.3);
+        }
+
+        .btn-secondary {
+            background: #ffa8c5;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #ff8fb3;
+        }
+
+        .btn-danger {
+            background: #ff69b4;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff1493;
+        }
+
+        .story-output {
+            background: #fff5f8;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 200px;
+            line-height: 1.8;
+            font-size: 16px;
+            color: #333;
+            border: 2px solid #ffd4e5;
+        }
+
+        .counter {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #d6336c;
+            font-weight: 600;
+        }
+
+        .selected-sentences {
+            margin-bottom: 20px;
+        }
+
+        .selected-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #ffe4ec;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .remove-btn {
+            background: #ff69b4;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-btn:hover {
+            background: #ff1493;
+        }
+
+        .credit {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(214, 51, 108, 0.15);
+        }
+
+        .credit p {
+            color: #d6336c;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .credit .heart {
+            color: #ff69b4;
+            font-size: 24px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #fff5f8;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ff69b4;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff1493;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1></h1>
+        
+        <div class="main-grid">
+            <div class="panel">
+                <h2>📝 Dataset Sentences (100)</h2>
+                <div class="sentence-list" id="sentenceList"></div>
+            </div>
+
+            <div class="panel">
+                <h2>🎯 Selected Sentences</h2>
+                <div class="counter">Selected: <span id="counter">0</span>/5</div>
+                <div class="selected-sentences" id="selectedList"></div>
+                
+                <div class="controls">
+                    <button class="btn-primary" onclick="generateStory()">🚀 Generate Story</button>
+                    <button class="btn-secondary" onclick="clearSelection()">🔄 Clear Selection</button>
+                    <button class="btn-danger" onclick="resetAll()">♻️ Reset All</button>
+                </div>
+
+                <h2 style="margin-top: 20px;">📖 Generated Story</h2>
+                <div class="story-output" id="storyOutput">
+                    Your story will appear here...
+                </div>
+            </div>
+        </div>
+
+        <div class="credit">
+            <p>Made with <span class="heart">♥</span> by Bian for Kila</p>
+        </div>
+    </div>
+
+    <script>
+        const sentences = [
+            "I wake up and get up in my dorm room.",
+            "I stretch my body.",
+            "I wash my face.",
+            "I brush my teeth.",
+            "I take a shower.",
+            "I choose my clothes.",
+            "I get dressed.",
+            "I comb my hair.",
+            "I prepare my breakfast.",
+            "I have breakfast.",
+            "I drink water.",
+            "I pack my school bag.",
+            "I check my schedule.",
+            "I leave the house.",
+            "I walk to the bus stop.",
+            "I wait for the bus.",
+            "I take the bus.",
+            "I arrive at the course center.",
+            "My class begins at 8 AM.",
+            "I enter the classroom.",
+            "I greet my English tutor.",
+            "I find an empty seat.",
+            "I sit down next to a classmate.",
+            "I take out my notebook and pen.",
+            "The speaking class begins.",
+            "I practice dialogues with a partner.",
+            "I try to speak clearly.",
+            "I ask for help if needed.",
+            "The tutor corrects my pronunciation.",
+            "We do a fun speaking activity.",
+            "The class takes a short break.",
+            "I chat with other students outside.",
+            "The lesson resumes after break.",
+            "I participate in a group discussion.",
+            "I share my opinion in English.",
+            "The class ends at noon.",
+            "I pack my bag.",
+            "I say goodbye to the tutor.",
+            "I head back to the canteen for lunch.",
+            "I queue up for food.",
+            "I have lunch with my course mates.",
+            "We discuss the lesson or weekend plans.",
+            "I go back to my dorm room.",
+            "I relax on my bed for thirty minutes.",
+            "I review the new speaking phrases.",
+            "I start my speaking homework.",
+            "I record myself speaking.",
+            "I have dinner with my roommate.",
+            "We cook something simple in the shared kitchen.",
+            "I clean up after cooking.",
+            "I usually get up when my roommate does.",
+            "We often take turns using the shower first.",
+            "I select an outfit for the day.",
+            "I sometimes skip the canteen breakfast and eat fruit in my room.",
+            "I always make my bed before leaving the room.",
+            "I usually sit with different people in class each day.",
+            "I often bump into my speaking partner near the classroom.",
+            "We usually practice the dialogue before the tutor arrives.",
+            "Sometimes the speaking activities are challenging but fun.",
+            "I always try to use the new vocabulary we learned.",
+            "I often ask my partner, \"What does this word mean?\"",
+            "After class, I sometimes go to the campus shop for snacks.",
+            "I look up difficult words from the lesson later.",
+            "I usually have lunch quickly because I have afternoon activities.",
+            "Then, I might join the conversation club in the common room.",
+            "I often feel more confident speaking after club practice.",
+            "I focus on my homework in the designated quiet study area.",
+            "I look for online resources to help with pronunciation.",
+            "I usually finish studying before dinner time.",
+            "I sometimes help my friends understand the homework.",
+            "My friends and I often cook dinner together in the kitchen.",
+            "We talk and laugh while preparing the food.",
+            "After dinner, we often hang out in someone's room.",
+            "We sometimes play card games or watch English movies.",
+            "I usually call my family once or twice a week.",
+            "I prepare my backpack for the next day's lessons.",
+            "I always double-check my alarm setting.",
+            "I try to wind down by listening to English songs.",
+            "I never stay up too late on school nights.",
+            "I usually read comments on English learning videos.",
+            "I turn off the main light but keep a small lamp on.",
+            "I try to remember corrections on my pronunciation.",
+            "I turn in my assignments before the deadline.",
+            "I tidy up my desk and bookshelf regularly.",
+            "I often practice speaking English even outside of class.",
+            "I practice dialogues alone in front of the mirror.",
+            "I make mind maps for speaking topics.",
+            "I turn on background music while studying sometimes.",
+            "I turn off my phone notifications when I sleep.",
+            "I look forward to the weekend bonding activities.",
+            "I usually feel happy living and learning here.",
+            "I sometimes do my laundry on Wednesday evenings.",
+            "I always make sure my door is locked when I go out.",
+            "I come back straight to the dorm after evening classes.",
+            "I charge all my gadgets before going to bed.",
+            "I quite often read the weekly activity schedule on the bulletin board.",
+            "I sometimes prepare snacks in the shared kitchen with friends.",
+            "I follow the quiet hours rule in the evenings.",
+            "I greet my neighbors when I see them in the hallway.",
+            "I feel my speaking skills are getting better."
+        ];
+
+        let selectedSentences = [];
+        let usedSentences = new Set();
+
+        function initializeSentences() {
+            const listElement = document.getElementById('sentenceList');
+            listElement.innerHTML = '';
+            
+            sentences.forEach((sentence, index) => {
+                const div = document.createElement('div');
+                div.className = 'sentence-item';
+                div.textContent = sentence;
+                div.onclick = () => toggleSentence(index, sentence);
+                div.id = `sentence-${index}`;
+                listElement.appendChild(div);
+            });
+        }
+
+        function toggleSentence(index, sentence) {
+            const element = document.getElementById(`sentence-${index}`);
+            
+            if (usedSentences.has(index)) {
+                return;
+            }
+
+            const existingIndex = selectedSentences.findIndex(s => s.index === index);
+            
+            if (existingIndex !== -1) {
+                selectedSentences.splice(existingIndex, 1);
+                element.classList.remove('selected');
+            } else {
+                if (selectedSentences.length >= 5) {
+                    alert('You can only select 5 sentences!');
+                    return;
+                }
+                selectedSentences.push({ index, sentence });
+                element.classList.add('selected');
+            }
+            
+            updateSelectedList();
+        }
+
+        function updateSelectedList() {
+            const listElement = document.getElementById('selectedList');
+            const counter = document.getElementById('counter');
+            
+            counter.textContent = selectedSentences.length;
+            listElement.innerHTML = '';
+            
+            selectedSentences.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'selected-item';
+                div.innerHTML = `
+                    <span>${idx + 1}. ${item.sentence}</span>
+                    <button class="remove-btn" onclick="removeSentence(${idx})">✕</button>
+                `;
+                listElement.appendChild(div);
+            });
+        }
+
+        function removeSentence(idx) {
+            const item = selectedSentences[idx];
+            const element = document.getElementById(`sentence-${item.index}`);
+            element.classList.remove('selected');
+            selectedSentences.splice(idx, 1);
+            updateSelectedList();
+        }
+
+        function getConnector(sentence1, sentence2) {
+            const s1Lower = sentence1.toLowerCase();
+            const s2Lower = sentence2.toLowerCase();
+            
+            // Skip if sentence already has connector
+            if (s2Lower.startsWith('then,') || s2Lower.startsWith('after')) {
+                return '';
+            }
+            
+            // Time sequence - morning routine
+            if (s1Lower.includes('wake up') && s2Lower.includes('stretch')) return 'Then,';
+            if (s1Lower.includes('stretch') && s2Lower.includes('wash')) return 'After that,';
+            if (s1Lower.includes('wash') && s2Lower.includes('brush')) return 'Next,';
+            if (s1Lower.includes('brush') && s2Lower.includes('shower')) return 'Then,';
+            if (s1Lower.includes('shower') && s2Lower.includes('choose')) return 'After showering,';
+            if (s1Lower.includes('choose') && s2Lower.includes('dressed')) return 'Then,';
+            if (s1Lower.includes('dressed') && s2Lower.includes('comb')) return 'After getting dressed,';
+            if (s1Lower.includes('comb') && s2Lower.includes('prepare')) return 'Next,';
+            if (s1Lower.includes('prepare') && s2Lower.includes('have breakfast')) return 'Then,';
+            if (s1Lower.includes('breakfast') && s2Lower.includes('drink')) return 'While eating,';
+            if (s1Lower.includes('drink') && s2Lower.includes('pack')) return 'After breakfast,';
+            if (s1Lower.includes('pack') && s2Lower.includes('check')) return 'Then,';
+            if (s1Lower.includes('check') && s2Lower.includes('leave')) return 'After checking,';
+            
+            // Going to class
+            if (s1Lower.includes('leave') && s2Lower.includes('walk')) return 'Then,';
+            if (s1Lower.includes('walk') && s2Lower.includes('wait')) return 'When I arrive,';
+            if (s1Lower.includes('wait') && s2Lower.includes('take the bus')) return 'Finally,';
+            if (s1Lower.includes('take the bus') && s2Lower.includes('arrive')) return 'After the ride,';
+            if (s1Lower.includes('arrive') && s2Lower.includes('class begins')) return 'Once I arrive,';
+            if (s1Lower.includes('class begins') && s2Lower.includes('enter')) return 'When class starts,';
+            
+            // In classroom
+            if (s1Lower.includes('enter') && s2Lower.includes('greet')) return 'As I enter,';
+            if (s1Lower.includes('greet') && s2Lower.includes('find')) return 'Then,';
+            if (s1Lower.includes('find') && s2Lower.includes('sit down')) return 'After finding a seat,';
+            if (s1Lower.includes('sit down') && s2Lower.includes('take out')) return 'Then,';
+            if (s1Lower.includes('take out') && s2Lower.includes('speaking class begins')) return 'Once ready,';
+            
+            // During class
+            if (s1Lower.includes('class begins') && s2Lower.includes('practice')) return 'During class,';
+            if (s1Lower.includes('practice') && s2Lower.includes('try to speak')) return 'While practicing,';
+            if (s1Lower.includes('speak') && s2Lower.includes('ask for help')) return 'Sometimes,';
+            if (s1Lower.includes('ask') && s2Lower.includes('corrects')) return 'When needed,';
+            if (s1Lower.includes('corrects') && s2Lower.includes('activity')) return 'After that,';
+            if (s1Lower.includes('activity') && s2Lower.includes('break')) return 'Following the activity,';
+            if (s1Lower.includes('break') && s2Lower.includes('chat')) return 'During the break,';
+            if (s1Lower.includes('chat') && s2Lower.includes('resumes')) return 'After the break,';
+            if (s1Lower.includes('resumes') && s2Lower.includes('participate')) return 'When class resumes,';
+            if (s1Lower.includes('participate') && s2Lower.includes('share')) return 'During the discussion,';
+            if (s1Lower.includes('share') && s2Lower.includes('ends')) return 'After sharing,';
+            
+            // After class
+            if (s1Lower.includes('ends') && s2Lower.includes('pack')) return 'When class ends,';
+            if (s1Lower.includes('pack my bag') && s2Lower.includes('goodbye')) return 'Then,';
+            if (s1Lower.includes('goodbye') && s2Lower.includes('head back')) return 'After saying goodbye,';
+            if (s1Lower.includes('head back') && s2Lower.includes('queue')) return 'Once I arrive,';
+            if (s1Lower.includes('queue') && s2Lower.includes('have lunch')) return 'After queuing,';
+            if (s1Lower.includes('have lunch') && s2Lower.includes('discuss')) return 'While having lunch,';
+            if (s1Lower.includes('discuss') && s2Lower.includes('go back')) return 'After lunch,';
+            
+            // Afternoon/evening
+            if (s1Lower.includes('go back') && s2Lower.includes('relax')) return 'Once I get back,';
+            if (s1Lower.includes('relax') && s2Lower.includes('review')) return 'After relaxing,';
+            if (s1Lower.includes('review') && s2Lower.includes('start')) return 'Then,';
+            if (s1Lower.includes('homework') && s2Lower.includes('record')) return 'For my homework,';
+            if (s1Lower.includes('record') && s2Lower.includes('dinner')) return 'After finishing,';
+            if (s1Lower.includes('dinner') && s2Lower.includes('cook')) return 'For dinner,';
+            if (s1Lower.includes('cook') && s2Lower.includes('clean')) return 'After cooking,';
+            
+            // Habits and routines
+            if (s1Lower.includes('usually') && s2Lower.includes('often')) return 'Additionally,';
+            if (s1Lower.includes('sometimes') && s2Lower.includes('always')) return 'However,';
+            if (s1Lower.includes('never') && s2Lower.includes('usually')) return 'On the other hand,';
+            
+            // Study-related
+            if (s1Lower.includes('lunch quickly') && s2Lower.includes('join')) return 'After eating,';
+            if (s1Lower.includes('club practice') && s2Lower.includes('focus')) return 'Following that,';
+            if (s1Lower.includes('focus') && s2Lower.includes('look for')) return 'While studying,';
+            if (s1Lower.includes('finish studying') && s2Lower.includes('help')) return 'After finishing,';
+            
+            // Evening activities
+            if (s1Lower.includes('cook dinner together') && s2Lower.includes('talk and laugh')) return 'While cooking,';
+            if (s1Lower.includes('preparing the food') && s2Lower.includes('hang out')) return 'After dinner,';
+            if (s1Lower.includes('hang out') && s2Lower.includes('play')) return 'During our hangout,';
+            if (s1Lower.includes('call my family') && s2Lower.includes('prepare')) return 'After the call,';
+            if (s1Lower.includes('backpack') && s2Lower.includes('double-check')) return 'Then,';
+            
+            // Bedtime
+            if (s1Lower.includes('alarm') && s2Lower.includes('wind down')) return 'After that,';
+            if (s1Lower.includes('wind down') && s2Lower.includes('never stay up')) return 'However,';
+            if (s1Lower.includes('videos') && s2Lower.includes('turn off')) return 'Before sleeping,';
+            if (s1Lower.includes('lamp') && s2Lower.includes('try to remember')) return 'As I lie down,';
+            
+            // Default connectors based on context
+            if (s1Lower.includes('i ') && s2Lower.includes('i ')) {
+                const connectors = ['Then,', 'After that,', 'Next,'];
+                return connectors[Math.floor(Math.random() * connectors.length)];
+            }
+            if (s1Lower.includes('we ') && s2Lower.includes('we ')) {
+                return 'Together,';
+            }
+            
+            // General default
+            return 'Then,';
+        }
+
+        function generateStory() {
+            if (selectedSentences.length === 0) {
+                alert('Please select at least one sentence!');
+                return;
+            }
+
+            let story = '';
+            
+            selectedSentences.forEach((item, index) => {
+                if (index === 0) {
+                    story += item.sentence;
+                } else {
+                    const connector = getConnector(
+                        selectedSentences[index - 1].sentence,
+                        item.sentence
+                    );
+                    
+                    if (connector === '') {
+                        story += ' ' + item.sentence;
+                    } else {
+                        story += ' ' + connector + ' ' + item.sentence.charAt(0).toLowerCase() + item.sentence.slice(1);
+                    }
+                }
+            });
+
+            document.getElementById('storyOutput').textContent = story;
+
+            // Mark as used
+            selectedSentences.forEach(item => {
+                usedSentences.add(item.index);
+                const element = document.getElementById(`sentence-${item.index}`);
+                element.classList.remove('selected');
+                element.classList.add('used');
+            });
+
+            selectedSentences = [];
+            updateSelectedList();
+        }
+
+        function clearSelection() {
+            selectedSentences.forEach(item => {
+                const element = document.getElementById(`sentence-${item.index}`);
+                element.classList.remove('selected');
+            });
+            selectedSentences = [];
+            updateSelectedList();
+        }
+
+        function resetAll() {
+            clearSelection();
+            usedSentences.clear();
+            document.getElementById('storyOutput').textContent = 'Your story will appear here...';
+            
+            sentences.forEach((_, index) => {
+                const element = document.getElementById(`sentence-${index}`);
+                element.classList.remove('used', 'selected');
+            });
+        }
+
+        initializeSentences();
+    </script>
+</body>
+</html>
