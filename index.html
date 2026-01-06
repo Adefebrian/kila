@@ -242,7 +242,7 @@
 </head>
 <body>
     <div class="container">
-        <h1></h1>
+        <h1>✨ Sentence Story Maker ✨</h1>
         
         <div class="main-grid">
             <div class="panel">
@@ -252,7 +252,7 @@
 
             <div class="panel">
                 <h2>🎯 Selected Sentences</h2>
-                <div class="counter">Selected: <span id="counter">0</span>/5</div>
+                <div class="counter">Selected: <span id="counter">0</span>/10</div>
                 <div class="selected-sentences" id="selectedList"></div>
                 
                 <div class="controls">
@@ -407,8 +407,8 @@
                 selectedSentences.splice(existingIndex, 1);
                 element.classList.remove('selected');
             } else {
-                if (selectedSentences.length >= 5) {
-                    alert('You can only select 5 sentences!');
+                if (selectedSentences.length >= 10) {
+                    alert('You can only select 10 sentences!');
                     return;
                 }
                 selectedSentences.push({ index, sentence });
@@ -444,7 +444,7 @@
             updateSelectedList();
         }
 
-        function getConnector(sentence1, sentence2) {
+        function getConnector(sentence1, sentence2, index, total) {
             const s1Lower = sentence1.toLowerCase();
             const s2Lower = sentence2.toLowerCase();
             
@@ -453,102 +453,124 @@
                 return '';
             }
             
+            // Position-aware connectors
+            const isEarly = index <= 2;
+            const isMid = index > 2 && index < total - 2;
+            const isLate = index >= total - 2;
+            
             // Time sequence - morning routine
-            if (s1Lower.includes('wake up') && s2Lower.includes('stretch')) return 'Then,';
-            if (s1Lower.includes('stretch') && s2Lower.includes('wash')) return 'After that,';
-            if (s1Lower.includes('wash') && s2Lower.includes('brush')) return 'Next,';
-            if (s1Lower.includes('brush') && s2Lower.includes('shower')) return 'Then,';
-            if (s1Lower.includes('shower') && s2Lower.includes('choose')) return 'After showering,';
-            if (s1Lower.includes('choose') && s2Lower.includes('dressed')) return 'Then,';
-            if (s1Lower.includes('dressed') && s2Lower.includes('comb')) return 'After getting dressed,';
-            if (s1Lower.includes('comb') && s2Lower.includes('prepare')) return 'Next,';
-            if (s1Lower.includes('prepare') && s2Lower.includes('have breakfast')) return 'Then,';
-            if (s1Lower.includes('breakfast') && s2Lower.includes('drink')) return 'While eating,';
-            if (s1Lower.includes('drink') && s2Lower.includes('pack')) return 'After breakfast,';
-            if (s1Lower.includes('pack') && s2Lower.includes('check')) return 'Then,';
-            if (s1Lower.includes('check') && s2Lower.includes('leave')) return 'After checking,';
+            if (s1Lower.includes('wake up') && s2Lower.includes('stretch')) return 'Immediately after waking,';
+            if (s1Lower.includes('stretch') && s2Lower.includes('wash')) return 'Following this,';
+            if (s1Lower.includes('wash') && s2Lower.includes('brush')) return 'Subsequently,';
+            if (s1Lower.includes('brush') && s2Lower.includes('shower')) return 'Afterward,';
+            if (s1Lower.includes('shower') && s2Lower.includes('choose')) return 'Once refreshed,';
+            if (s1Lower.includes('choose') && s2Lower.includes('dressed')) return 'Having selected my outfit,';
+            if (s1Lower.includes('dressed') && s2Lower.includes('comb')) return 'As part of my routine,';
+            if (s1Lower.includes('comb') && s2Lower.includes('prepare')) return 'With my appearance ready,';
+            if (s1Lower.includes('prepare') && s2Lower.includes('have breakfast')) return 'Once everything is prepared,';
+            if (s1Lower.includes('breakfast') && s2Lower.includes('drink')) return 'During the meal,';
+            if (s1Lower.includes('drink') && s2Lower.includes('pack')) return 'Having finished eating,';
+            if (s1Lower.includes('pack') && s2Lower.includes('check')) return 'With my bag ready,';
+            if (s1Lower.includes('check') && s2Lower.includes('leave')) return 'After ensuring everything is in order,';
             
             // Going to class
-            if (s1Lower.includes('leave') && s2Lower.includes('walk')) return 'Then,';
-            if (s1Lower.includes('walk') && s2Lower.includes('wait')) return 'When I arrive,';
-            if (s1Lower.includes('wait') && s2Lower.includes('take the bus')) return 'Finally,';
-            if (s1Lower.includes('take the bus') && s2Lower.includes('arrive')) return 'After the ride,';
-            if (s1Lower.includes('arrive') && s2Lower.includes('class begins')) return 'Once I arrive,';
-            if (s1Lower.includes('class begins') && s2Lower.includes('enter')) return 'When class starts,';
+            if (s1Lower.includes('leave') && s2Lower.includes('walk')) return 'Upon leaving the dorm,';
+            if (s1Lower.includes('walk') && s2Lower.includes('wait')) return 'When I reach the bus stop,';
+            if (s1Lower.includes('wait') && s2Lower.includes('take the bus')) return 'Shortly after,';
+            if (s1Lower.includes('take the bus') && s2Lower.includes('arrive')) return 'Following the commute,';
+            if (s1Lower.includes('arrive') && s2Lower.includes('class begins')) return 'As I arrive at the center,';
+            if (s1Lower.includes('class begins') && s2Lower.includes('enter')) return 'At the start of class,';
             
             // In classroom
-            if (s1Lower.includes('enter') && s2Lower.includes('greet')) return 'As I enter,';
-            if (s1Lower.includes('greet') && s2Lower.includes('find')) return 'Then,';
-            if (s1Lower.includes('find') && s2Lower.includes('sit down')) return 'After finding a seat,';
-            if (s1Lower.includes('sit down') && s2Lower.includes('take out')) return 'Then,';
-            if (s1Lower.includes('take out') && s2Lower.includes('speaking class begins')) return 'Once ready,';
+            if (s1Lower.includes('enter') && s2Lower.includes('greet')) return 'Upon entering,';
+            if (s1Lower.includes('greet') && s2Lower.includes('find')) return 'Having greeted the tutor,';
+            if (s1Lower.includes('find') && s2Lower.includes('sit down')) return 'After locating a suitable spot,';
+            if (s1Lower.includes('sit down') && s2Lower.includes('take out')) return 'Once settled,';
+            if (s1Lower.includes('take out') && s2Lower.includes('speaking class begins')) return 'With my materials ready,';
             
             // During class
-            if (s1Lower.includes('class begins') && s2Lower.includes('practice')) return 'During class,';
-            if (s1Lower.includes('practice') && s2Lower.includes('try to speak')) return 'While practicing,';
-            if (s1Lower.includes('speak') && s2Lower.includes('ask for help')) return 'Sometimes,';
-            if (s1Lower.includes('ask') && s2Lower.includes('corrects')) return 'When needed,';
-            if (s1Lower.includes('corrects') && s2Lower.includes('activity')) return 'After that,';
-            if (s1Lower.includes('activity') && s2Lower.includes('break')) return 'Following the activity,';
-            if (s1Lower.includes('break') && s2Lower.includes('chat')) return 'During the break,';
-            if (s1Lower.includes('chat') && s2Lower.includes('resumes')) return 'After the break,';
-            if (s1Lower.includes('resumes') && s2Lower.includes('participate')) return 'When class resumes,';
-            if (s1Lower.includes('participate') && s2Lower.includes('share')) return 'During the discussion,';
-            if (s1Lower.includes('share') && s2Lower.includes('ends')) return 'After sharing,';
+            if (s1Lower.includes('class begins') && s2Lower.includes('practice')) return 'As the lesson progresses,';
+            if (s1Lower.includes('practice') && s2Lower.includes('try to speak')) return 'Throughout the practice session,';
+            if (s1Lower.includes('speak') && s2Lower.includes('ask for help')) return 'Whenever necessary,';
+            if (s1Lower.includes('ask') && s2Lower.includes('corrects')) return 'In response,';
+            if (s1Lower.includes('corrects') && s2Lower.includes('activity')) return 'Moving forward,';
+            if (s1Lower.includes('activity') && s2Lower.includes('break')) return 'After completing the task,';
+            if (s1Lower.includes('break') && s2Lower.includes('chat')) return 'During this brief pause,';
+            if (s1Lower.includes('chat') && s2Lower.includes('resumes')) return 'Once the break concludes,';
+            if (s1Lower.includes('resumes') && s2Lower.includes('participate')) return 'As we continue,';
+            if (s1Lower.includes('participate') && s2Lower.includes('share')) return 'Within the discussion,';
+            if (s1Lower.includes('share') && s2Lower.includes('ends')) return 'Eventually,';
             
             // After class
-            if (s1Lower.includes('ends') && s2Lower.includes('pack')) return 'When class ends,';
-            if (s1Lower.includes('pack my bag') && s2Lower.includes('goodbye')) return 'Then,';
-            if (s1Lower.includes('goodbye') && s2Lower.includes('head back')) return 'After saying goodbye,';
-            if (s1Lower.includes('head back') && s2Lower.includes('queue')) return 'Once I arrive,';
-            if (s1Lower.includes('queue') && s2Lower.includes('have lunch')) return 'After queuing,';
-            if (s1Lower.includes('have lunch') && s2Lower.includes('discuss')) return 'While having lunch,';
-            if (s1Lower.includes('discuss') && s2Lower.includes('go back')) return 'After lunch,';
+            if (s1Lower.includes('ends') && s2Lower.includes('pack')) return 'As class wraps up,';
+            if (s1Lower.includes('pack my bag') && s2Lower.includes('goodbye')) return 'Before leaving,';
+            if (s1Lower.includes('goodbye') && s2Lower.includes('head back')) return 'Having bid farewell,';
+            if (s1Lower.includes('head back') && s2Lower.includes('queue')) return 'Upon arriving at the canteen,';
+            if (s1Lower.includes('queue') && s2Lower.includes('have lunch')) return 'After waiting in line,';
+            if (s1Lower.includes('have lunch') && s2Lower.includes('discuss')) return 'Over our meal,';
+            if (s1Lower.includes('discuss') && s2Lower.includes('go back')) return 'Following our conversation,';
             
             // Afternoon/evening
-            if (s1Lower.includes('go back') && s2Lower.includes('relax')) return 'Once I get back,';
-            if (s1Lower.includes('relax') && s2Lower.includes('review')) return 'After relaxing,';
-            if (s1Lower.includes('review') && s2Lower.includes('start')) return 'Then,';
-            if (s1Lower.includes('homework') && s2Lower.includes('record')) return 'For my homework,';
-            if (s1Lower.includes('record') && s2Lower.includes('dinner')) return 'After finishing,';
-            if (s1Lower.includes('dinner') && s2Lower.includes('cook')) return 'For dinner,';
-            if (s1Lower.includes('cook') && s2Lower.includes('clean')) return 'After cooking,';
-            
-            // Habits and routines
-            if (s1Lower.includes('usually') && s2Lower.includes('often')) return 'Additionally,';
-            if (s1Lower.includes('sometimes') && s2Lower.includes('always')) return 'However,';
-            if (s1Lower.includes('never') && s2Lower.includes('usually')) return 'On the other hand,';
+            if (s1Lower.includes('go back') && s2Lower.includes('relax')) return 'When I return to my room,';
+            if (s1Lower.includes('relax') && s2Lower.includes('review')) return 'After this short rest,';
+            if (s1Lower.includes('review') && s2Lower.includes('start')) return 'With the material fresh in mind,';
+            if (s1Lower.includes('homework') && s2Lower.includes('record')) return 'As part of my assignment,';
+            if (s1Lower.includes('record') && s2Lower.includes('dinner')) return 'Once my work is complete,';
+            if (s1Lower.includes('dinner') && s2Lower.includes('cook')) return 'For our evening meal,';
+            if (s1Lower.includes('cook') && s2Lower.includes('clean')) return 'After we finish cooking and eating,';
             
             // Study-related
-            if (s1Lower.includes('lunch quickly') && s2Lower.includes('join')) return 'After eating,';
-            if (s1Lower.includes('club practice') && s2Lower.includes('focus')) return 'Following that,';
-            if (s1Lower.includes('focus') && s2Lower.includes('look for')) return 'While studying,';
-            if (s1Lower.includes('finish studying') && s2Lower.includes('help')) return 'After finishing,';
+            if (s1Lower.includes('lunch quickly') && s2Lower.includes('join')) return 'Given my afternoon schedule,';
+            if (s1Lower.includes('club practice') && s2Lower.includes('focus')) return 'Feeling more confident,';
+            if (s1Lower.includes('focus') && s2Lower.includes('look for')) return 'To enhance my understanding,';
+            if (s1Lower.includes('finish studying') && s2Lower.includes('help')) return 'With my own work done,';
             
             // Evening activities
-            if (s1Lower.includes('cook dinner together') && s2Lower.includes('talk and laugh')) return 'While cooking,';
-            if (s1Lower.includes('preparing the food') && s2Lower.includes('hang out')) return 'After dinner,';
-            if (s1Lower.includes('hang out') && s2Lower.includes('play')) return 'During our hangout,';
-            if (s1Lower.includes('call my family') && s2Lower.includes('prepare')) return 'After the call,';
-            if (s1Lower.includes('backpack') && s2Lower.includes('double-check')) return 'Then,';
+            if (s1Lower.includes('cook dinner together') && s2Lower.includes('talk and laugh')) return 'As we prepare our food,';
+            if (s1Lower.includes('preparing the food') && s2Lower.includes('hang out')) return 'Once dinner is finished,';
+            if (s1Lower.includes('hang out') && s2Lower.includes('play')) return 'To unwind together,';
+            if (s1Lower.includes('call my family') && s2Lower.includes('prepare')) return 'After catching up with loved ones,';
+            if (s1Lower.includes('backpack') && s2Lower.includes('double-check')) return 'To ensure I\'m ready for tomorrow,';
             
             // Bedtime
-            if (s1Lower.includes('alarm') && s2Lower.includes('wind down')) return 'After that,';
-            if (s1Lower.includes('wind down') && s2Lower.includes('never stay up')) return 'However,';
-            if (s1Lower.includes('videos') && s2Lower.includes('turn off')) return 'Before sleeping,';
-            if (s1Lower.includes('lamp') && s2Lower.includes('try to remember')) return 'As I lie down,';
+            if (s1Lower.includes('alarm') && s2Lower.includes('wind down')) return 'With tomorrow planned,';
+            if (s1Lower.includes('wind down') && s2Lower.includes('never stay up')) return 'Mindful of my health,';
+            if (s1Lower.includes('videos') && s2Lower.includes('turn off')) return 'As bedtime approaches,';
+            if (s1Lower.includes('lamp') && s2Lower.includes('try to remember')) return 'In the quiet darkness,';
             
-            // Default connectors based on context
-            if (s1Lower.includes('i ') && s2Lower.includes('i ')) {
-                const connectors = ['Then,', 'After that,', 'Next,'];
-                return connectors[Math.floor(Math.random() * connectors.length)];
+            // Contextual connectors based on keywords
+            if (s1Lower.includes('usually') || s1Lower.includes('often') || s1Lower.includes('sometimes')) {
+                const habitConnectors = ['In addition to this,', 'Similarly,', 'Correspondingly,', 'Likewise,', 'Along with this,'];
+                return habitConnectors[Math.floor(Math.random() * habitConnectors.length)];
             }
-            if (s1Lower.includes('we ') && s2Lower.includes('we ')) {
+            
+            if (s1Lower.includes('never') && (s2Lower.includes('always') || s2Lower.includes('usually'))) {
+                return 'On the other hand,';
+            }
+            
+            if (s1Lower.includes('friends') && s2Lower.includes('we')) {
                 return 'Together,';
             }
             
-            // General default
-            return 'Then,';
+            // Position-based variety
+            if (isEarly) {
+                const earlyConnectors = ['Following this,', 'Subsequently,', 'Immediately after,', 'In turn,'];
+                return earlyConnectors[Math.floor(Math.random() * earlyConnectors.length)];
+            }
+            
+            if (isMid) {
+                const midConnectors = ['Moreover,', 'Furthermore,', 'Additionally,', 'Consequently,', 'As a result,', 'Meanwhile,'];
+                return midConnectors[Math.floor(Math.random() * midConnectors.length)];
+            }
+            
+            if (isLate) {
+                const lateConnectors = ['Eventually,', 'Finally,', 'Ultimately,', 'In the end,', 'To conclude my day,'];
+                return lateConnectors[Math.floor(Math.random() * lateConnectors.length)];
+            }
+            
+            // General varied connectors
+            const generalConnectors = ['Afterward,', 'Subsequently,', 'Following this,', 'In the meantime,', 'Shortly after,', 'Meanwhile,'];
+            return generalConnectors[Math.floor(Math.random() * generalConnectors.length)];
         }
 
         function generateStory() {
@@ -558,6 +580,7 @@
             }
 
             let story = '';
+            const totalSentences = selectedSentences.length;
             
             selectedSentences.forEach((item, index) => {
                 if (index === 0) {
@@ -565,7 +588,9 @@
                 } else {
                     const connector = getConnector(
                         selectedSentences[index - 1].sentence,
-                        item.sentence
+                        item.sentence,
+                        index,
+                        totalSentences
                     );
                     
                     if (connector === '') {
