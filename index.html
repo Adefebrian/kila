@@ -500,19 +500,31 @@
         let selectedSentences = [];
         let usedSentences = new Set();
 
-        // Load used sentences from localStorage on startup
+        // Load used sentences from memory storage on startup
         function loadUsedSentences() {
-            const saved = localStorage.getItem('usedSentences');
-            if (saved) {
-                usedSentences = new Set(JSON.parse(saved));
+            try {
+                const saved = sessionStorage.getItem('usedSentences');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    usedSentences = new Set(parsed);
+                    console.log('Loaded used sentences:', usedSentences.size);
+                }
+            } catch (e) {
+                console.error('Error loading used sentences:', e);
+                usedSentences = new Set();
             }
             updateStats();
         }
 
-        // Save used sentences to localStorage
+        // Save used sentences to memory storage
         function saveUsedSentences() {
-            localStorage.setItem('usedSentences', JSON.stringify([...usedSentences]));
-            updateStats();
+            try {
+                sessionStorage.setItem('usedSentences', JSON.stringify([...usedSentences]));
+                console.log('Saved used sentences:', usedSentences.size);
+                updateStats();
+            } catch (e) {
+                console.error('Error saving used sentences:', e);
+            }
         }
 
         function updateStats() {
@@ -753,6 +765,59 @@
             outputElement.textContent = story;
             outputElement.classList.remove('empty');
 
-            // Mark as used and save to localStorage
+            // Mark as used and save to memory storage
             selectedSentences.forEach(item => {
                 usedSentences.add(item.index);
+                const element = document.getElementById(`sentence-${item.index}`);
+                if (element) {
+                    element.classList.add('used');
+                    element.classList.remove('selected');
+                }
+            });
+
+            saveUsedSentences();
+            
+            // Clear selection
+            selectedSentences = [];
+            updateSelectedList();
+        }
+
+        function clearSelection() {
+            selectedSentences.forEach(item => {
+                const element = document.getElementById(`sentence-${item.index}`);
+                if (element) {
+                    element.classList.remove('selected');
+                }
+            });
+            selectedSentences = [];
+            updateSelectedList();
+            
+            const outputElement = document.getElementById('storyOutput');
+            outputElement.textContent = 'Your generated story will appear here...';
+            outputElement.classList.add('empty');
+        }
+
+        function resetAll() {
+            if (confirm('This will reset all used sentences. Are you sure?')) {
+                usedSentences.clear();
+                selectedSentences = [];
+                saveUsedSentences();
+                initializeSentences();
+                updateSelectedList();
+                
+                const outputElement = document.getElementById('storyOutput');
+                outputElement.textContent = 'Your generated story will appear here...';
+                outputElement.classList.add('empty');
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Initializing app...');
+            console.log('Total sentences:', sentences.length);
+            loadUsedSentences();
+            initializeSentences();
+        });
+    </script>
+</body>
+</html>
